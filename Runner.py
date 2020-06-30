@@ -2,23 +2,20 @@ from ImageFeatures import ImageFeatures
 from PIL import Image, ImageOps, UnidentifiedImageError
 import requests
 from io import BytesIO
-import json
 
 class Runner:
-    def __init__(self, start, end):
+    def __init__(self, start, end, data):
         print('Creating new Runner')
         self.start = start
         self.end = end
+        self.data = data
         self.imgF = ImageFeatures()
 
     def run(self):
-        print('Runner.run()')
-        with open('./500k_With_Meta+Annotations.json', 'r', encoding='utf-8') as json_file:
-            data = json.load(json_file)
         print('Starting from %d.' % (self.start + 1))
         featureList = {}
         for i in range(self.start, self.end + 1):
-            item = data[i]
+            item = self.data[i]
             itemURL = item['medium_url']
             itemID = item['cid']
             print('Processing %d of %d (%s)' % (i, self.end, itemURL))

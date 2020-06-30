@@ -6,7 +6,7 @@ import json
 
 OUTPUT_DIR = 'output'
 CHUNK_SIZE = 100
-TOTAL = 131293
+INPUT_FILE = './500k_With_Meta+Annotations.json'
 
 def main():
     if (path.exists(OUTPUT_DIR) == False):
@@ -15,11 +15,15 @@ def main():
     outputFileCount = len([name for name in os.listdir(OUTPUT_DIR) if os.path.isfile(os.path.join(OUTPUT_DIR, name))])
     start = (outputFileCount * CHUNK_SIZE)
 
-    iterations = int((TOTAL / CHUNK_SIZE) - outputFileCount)
+    with open(INPUT_FILE, 'r', encoding='utf-8') as jsonFile:
+        data = json.load(jsonFile)
+        total = len(data)
+
+    iterations = int((total / CHUNK_SIZE) - outputFileCount)
 
     for i in range(0, iterations):
         q = Queue()
-        p = Process(target=loop, args=(q, (i * CHUNK_SIZE) + start, ))
+        p = Process(target=loop, args=(q, (i * CHUNK_SIZE) + start, data, ))
         p.start()
         featureList = q.get()
         p.join()
@@ -34,8 +38,8 @@ def main():
 
     print('Done!')
 
-def loop(q, start):
-    runner = Runner(start, (start + CHUNK_SIZE) - 1)
+def loop(q, start, data):
+    runner = Runner(start, (start + CHUNK_SIZE) - 1, data)
     featureList = runner.run()
     q.put(featureList)
 
