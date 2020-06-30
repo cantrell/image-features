@@ -1,5 +1,5 @@
 from ImageFeatures import ImageFeatures
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, UnidentifiedImageError
 import requests
 from io import BytesIO
 import json
@@ -29,7 +29,12 @@ class Runner:
                 print(status_code)
                 exit(-1)
                 # TODO Don't need to exit; we could just try again
-            image = Image.open(BytesIO(response.content))
+            try:
+                image = Image.open(BytesIO(response.content))
+            except UnidentifiedImageError as e:
+                print('Cannot open this image:')
+                print(e)
+                continue
             ratio = float(item['h_1000']) / float(item['w_1000'])
             scale = float(item['w_1000']) / image.size[0]
             coords = item['annotations']['annotation'][0]['coordinates']
